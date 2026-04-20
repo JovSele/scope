@@ -1,128 +1,110 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-type ParsedResult = {
-  impact: string[];
-  options: {
-    quick: string;
-    proper: string;
-  };
-  reply: string;
+// Response variations for each classification
+const RESPONSES = {
+  small: [
+    "I'll include this as part of the current scope.",
+    "I can handle this within the current scope.",
+    "This fits within what we're already working on, so I'll include it.",
+  ],
+  medium: [
+    "This change affects the current implementation, so I'll include it in the next phase or we can swap it with something else from the current scope.",
+    "This touches the existing setup, so we can either move it to the next phase or swap it with something from the current scope.",
+    "This impacts what we're building, so I'd suggest including it in the next phase or swapping it with another item in the current scope.",
+  ],
+  large: [
+    `This change impacts the current system more than it seems, so it needs to be treated as a separate scope change.
+
+We can either:
+- adjust the timeline, or
+- define it as a separate task
+
+How would you like to proceed?`,
+    `This request affects the existing setup more deeply than it looks, so it should be treated as a separate scope change.
+
+We can either:
+- adjust the timeline, or
+- define it as a separate task
+
+How would you like to proceed?`,
+    `This goes beyond a small change and affects the current system, so it needs to be treated as a separate scope change.
+
+We can either:
+- adjust the timeline, or
+- define it as a separate task
+
+How would you like to proceed?`,
+  ],
 };
 
-const DEMO_RESPONSE = `IMPACT:
-- touches the current flow and may require UI updates
-- may affect backend logic or existing conditions
-- adds testing scope before delivery
-- can impact timeline if added mid-build
-
-OPTIONS:
-- Quick: implement a lighter workaround faster, but with a higher risk of future issues
-- Proper: implement it cleanly, test it properly, and adjust scope or timeline accordingly
-
-REPLY:
-This change is possible, but it affects the current implementation more than it seems at first glance. We can either handle it as a quick workaround now, or treat it as a scoped change and adjust timeline or cost for a proper implementation.`;
-
-function parseResponse(text: string): ParsedResult {
-  const impactMatch = text.match(/IMPACT:\s*([\s\S]*?)\n\nOPTIONS:/i);
-  const optionsMatch = text.match(/OPTIONS:\s*([\s\S]*?)\n\nREPLY:/i);
-  const replyMatch = text.match(/REPLY:\s*([\s\S]*)/i);
-
-  const impact = impactMatch
-    ? impactMatch[1]
-        .split("\n")
-        .map((line) => line.replace(/^[-•]\s*/, "").trim())
-        .filter(Boolean)
-    : [];
-
-  const optionLines = optionsMatch
-    ? optionsMatch[1]
-        .split("\n")
-        .map((line) => line.replace(/^[-•]\s*/, "").trim())
-        .filter(Boolean)
-    : [];
-
-  const quick =
-    optionLines.find((line) => /^quick\s*:/i.test(line))?.replace(/^quick\s*:/i, "").trim() ||
-    "Offer a faster workaround with known tradeoffs.";
-
-  const proper =
-    optionLines.find((line) => /^proper\s*:/i.test(line))?.replace(/^proper\s*:/i, "").trim() ||
-    "Treat it as a scoped change with proper implementation and testing.";
-
-  const reply = replyMatch?.[1]?.trim() || "";
-
-  return {
-    impact,
-    options: { quick, proper },
-    reply,
-  };
-}
-
-async function analyzeRequest(request: string, context: string, workType: string): Promise<string> {
-  // Replace this mock with your OpenAI API call later.
-  await new Promise((resolve) => setTimeout(resolve, 900));
-
-  if (!request.trim()) {
-    throw new Error("Missing client request.");
-  }
-
-  return DEMO_RESPONSE.replace(
-    "touches the current flow",
-    workType === "Automation"
-      ? "touches the current automation flow"
-      : workType === "Design"
-        ? "touches the current design flow"
-        : "touches the current flow"
-  ).replace(
-    "This change is possible",
-    context.trim() ? "Given the current project context, this change is possible" : "This change is possible"
-  );
-}
-
-export default function ScopeTranslatorMVP() {
+export default function ScopeDecisionSystem() {
   const [request, setRequest] = useState("");
+  const [change, setChange] = useState("");
   const [context, setContext] = useState("");
-  const [workType, setWorkType] = useState("Web development");
-  const [rawResult, setRawResult] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [classification, setClassification] = useState<"small" | "medium" | "large" | null>(null);
+  const [checks, setChecks] = useState({
+    logic: false,
+    backend: false,
+    testing: false,
+    ux: false,
+  });
   const [copied, setCopied] = useState(false);
+  const [variantIndex, setVariantIndex] = useState(0);
 
-  const parsed = useMemo(() => parseResponse(rawResult), [rawResult]);
-
-  const handleAnalyze = async () => {
-    setError("");
-    setCopied(false);
-
-    if (!request.trim()) {
-      setError("Paste the client request first.");
-      return;
+  // Auto-override logic based on checked items
+  useEffect(() => {
+    const checkedCount = Object.values(checks).filter(Boolean).length;
+    
+    if (checkedCount >= 3) {
+      setClassification("large");
+    } else if (checkedCount >= 2) {
+      setClassification("medium");
     }
+  }, [checks]);
 
-    try {
-      setLoading(true);
-      const result = await analyzeRequest(request, context, workType);
-      setRawResult(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not analyze this request.");
-    } finally {
-      setLoading(false);
+  // Pick a random variant when classification changes
+  useEffect(() => {
+    if (classification) {
+      const variants = RESPONSES[classification];
+      setVariantIndex(Math.floor(Math.random() * variants.length));
     }
+  }, [classification]);
+
+  const getResponse = (): string => {
+    if (!classification) return "";
+    return RESPONSES[classification][variantIndex];
+  };
+
+  const handleRegenerate = () => {
+    if (!classification) return;
+    const variants = RESPONSES[classification];
+    // Pick a different variant
+    let newIndex = Math.floor(Math.random() * variants.length);
+    // Ensure it's different from current if there are multiple variants
+    if (variants.length > 1) {
+      while (newIndex === variantIndex) {
+        newIndex = Math.floor(Math.random() * variants.length);
+      }
+    }
+    setVariantIndex(newIndex);
   };
 
   const handleCopyReply = async () => {
-    if (!parsed.reply) return;
-    await navigator.clipboard.writeText(parsed.reply);
+    const response = getResponse();
+    if (!response) return;
+    await navigator.clipboard.writeText(response);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1500);
   };
+
+  const response = getResponse();
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center justify-between gap-4 border-b border-zinc-800 pb-4">
           <div>
-            <p className="text-lg font-semibold tracking-tight">Scope Translator</p>
+            <p className="text-lg font-semibold tracking-tight">Scope Decision System</p>
             <p className="text-sm text-zinc-400">Turn vague client requests into clear decisions.</p>
           </div>
           <p className="hidden text-sm text-zinc-500 md:block">For freelancers, agencies, and developers</p>
@@ -135,7 +117,7 @@ export default function ScopeTranslatorMVP() {
                 Stop replying to client changes on the spot
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
-                Paste the request, add a bit of context, and get a structured response you can actually use.
+                Paste the request, classify the change, and get a structured response you can actually use.
               </p>
             </div>
 
@@ -145,10 +127,21 @@ export default function ScopeTranslatorMVP() {
                 <textarea
                   value={request}
                   onChange={(e) => setRequest(e.target.value)}
-                  placeholder={'“Can we just add a button here?”\n“Can we make this section editable?”\n“This should be a quick change, right?”'}
+                  placeholder={'"Can we just add a button here?"\n"Can we make this section editable?"\n"This should be a quick change, right?"'}
                   className="min-h-[150px] w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-600 focus:ring-2 focus:ring-zinc-700"
                 />
                 <p className="mt-2 text-xs text-zinc-500">Paste the exact message from the client.</p>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-zinc-200">Describe the change in your own words</label>
+                <textarea
+                  value={change}
+                  onChange={(e) => setChange(e.target.value)}
+                  placeholder="e.g. connect form submissions to HubSpot CRM and map custom fields"
+                  className="min-h-[110px] w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-600 focus:ring-2 focus:ring-zinc-700"
+                />
+                <p className="mt-2 text-xs text-zinc-500">Optional, but helps make the output more accurate.</p>
               </div>
 
               <div>
@@ -163,126 +156,128 @@ export default function ScopeTranslatorMVP() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-zinc-200">Work type</label>
-                <select
-                  value={workType}
-                  onChange={(e) => setWorkType(e.target.value)}
-                  className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-600 focus:ring-2 focus:ring-zinc-700"
-                >
-                  <option>Web development</option>
-                  <option>Automation</option>
-                  <option>Design</option>
-                  <option>Internal tools</option>
-                  <option>Other</option>
-                </select>
-                <p className="mt-2 text-xs text-zinc-500">Used to slightly adjust the impact framing.</p>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  onClick={handleAnalyze}
-                  disabled={loading}
-                  className="inline-flex w-full items-center justify-center rounded-2xl bg-white px-4 py-3 text-sm font-medium text-zinc-950 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-                >
-                  {loading ? "Analyzing request..." : "Analyze request"}
-                </button>
-                <p className="mt-2 text-xs text-zinc-500">Get a quick breakdown before you answer.</p>
-              </div>
-
-              {error ? (
-                <div className="rounded-2xl border border-red-900/60 bg-red-950/30 px-4 py-3 text-sm text-red-200">
-                  {error}
+                <label className="mb-2 block text-sm font-medium text-zinc-200">Classify the change</label>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setClassification("small")}
+                    className={`flex-1 rounded-2xl border px-4 py-3 text-sm font-medium transition ${
+                      classification === "small"
+                        ? "border-green-600 bg-green-950/50 text-green-200"
+                        : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-700"
+                    }`}
+                  >
+                    🟢 Small
+                    <span className="mt-1 block text-xs font-normal opacity-70">(under 15 min)</span>
+                  </button>
+                  <button
+                    onClick={() => setClassification("medium")}
+                    className={`flex-1 rounded-2xl border px-4 py-3 text-sm font-medium transition ${
+                      classification === "medium"
+                        ? "border-yellow-600 bg-yellow-950/50 text-yellow-200"
+                        : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-700"
+                    }`}
+                  >
+                    🟡 Medium
+                    <span className="mt-1 block text-xs font-normal opacity-70">(affects scope)</span>
+                  </button>
+                  <button
+                    onClick={() => setClassification("large")}
+                    className={`flex-1 rounded-2xl border px-4 py-3 text-sm font-medium transition ${
+                      classification === "large"
+                        ? "border-red-600 bg-red-950/50 text-red-200"
+                        : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-700"
+                    }`}
+                  >
+                    🔴 Large
+                    <span className="mt-1 block text-xs font-normal opacity-70">(affects system)</span>
+                  </button>
                 </div>
-              ) : null}
+                <p className="mt-2 text-xs text-zinc-400">If you're unsure, start with Medium. The checklist will adjust it.</p>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-zinc-200">Impact checklist</label>
+                <div className="space-y-3 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                  <label className="flex cursor-pointer items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={checks.logic}
+                      onChange={(e) => setChecks({ ...checks, logic: e.target.checked })}
+                      className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-2 focus:ring-zinc-700"
+                    />
+                    <span className="text-sm text-zinc-200">Touches existing logic</span>
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={checks.backend}
+                      onChange={(e) => setChecks({ ...checks, backend: e.target.checked })}
+                      className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-2 focus:ring-zinc-700"
+                    />
+                    <span className="text-sm text-zinc-200">Requires backend / automation change</span>
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={checks.testing}
+                      onChange={(e) => setChecks({ ...checks, testing: e.target.checked })}
+                      className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-2 focus:ring-zinc-700"
+                    />
+                    <span className="text-sm text-zinc-200">Requires testing</span>
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={checks.ux}
+                      onChange={(e) => setChecks({ ...checks, ux: e.target.checked })}
+                      className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-2 focus:ring-zinc-700"
+                    />
+                    <span className="text-sm text-zinc-200">Changes UX / flow</span>
+                  </label>
+                </div>
+                <p className="mt-2 text-xs text-zinc-500">
+                  Checking 2+ items will auto-adjust classification to medium or large.
+                </p>
+              </div>
             </div>
           </section>
 
           <section className="space-y-4">
-            {!rawResult && !loading ? (
+            {!classification ? (
               <div className="rounded-3xl border border-dashed border-zinc-800 bg-zinc-900/50 p-6">
-                <h2 className="text-lg font-semibold">Paste a request to get started</h2>
+                <h2 className="text-lg font-semibold">Classify the change to get started</h2>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  You’ll get a practical impact breakdown, response options, and a client-friendly reply.
+                  Choose a classification and check impact boxes to generate a response.
                 </p>
-                <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4 text-sm text-zinc-300">
-                    Practical impact
-                  </div>
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4 text-sm text-zinc-300">
-                    Clear options
-                  </div>
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4 text-sm text-zinc-300">
-                    Client-ready reply
-                  </div>
-                </div>
               </div>
-            ) : null}
-
-            {loading ? (
+            ) : (
               <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-                <h2 className="text-lg font-semibold">Analyzing request...</h2>
-                <p className="mt-2 text-sm text-zinc-400">Mapping impact, tradeoffs, and reply.</p>
-              </div>
-            ) : null}
-
-            {rawResult ? (
-              <div className="grid gap-4 xl:grid-cols-3">
-                <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-                  <h3 className="text-base font-semibold">Impact</h3>
-                  <p className="mt-1 text-sm text-zinc-400">What this request actually means in practice.</p>
-                  <ul className="mt-4 space-y-3 text-sm text-zinc-200">
-                    {parsed.impact.map((item) => (
-                      <li key={item} className="rounded-2xl border border-zinc-800 bg-zinc-950 px-3 py-3">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                <h3 className="text-base font-semibold">Response</h3>
+                <p className="mt-1 text-sm text-zinc-400">A professional reply you can copy, edit, and send.</p>
+                <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-sm leading-6 text-zinc-200 whitespace-pre-line">
+                  {response}
                 </div>
-
-                <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-                  <h3 className="text-base font-semibold">Options</h3>
-                  <p className="mt-1 text-sm text-zinc-400">Different ways to handle it.</p>
-                  <div className="mt-4 space-y-3 text-sm">
-                    <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                      <p className="font-medium text-zinc-100">Quick / cheap</p>
-                      <p className="mt-2 text-zinc-300">{parsed.options.quick}</p>
-                    </div>
-                    <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                      <p className="font-medium text-zinc-100">Proper implementation</p>
-                      <p className="mt-2 text-zinc-300">{parsed.options.proper}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-                  <h3 className="text-base font-semibold">Client reply</h3>
-                  <p className="mt-1 text-sm text-zinc-400">A professional reply you can copy, edit, and send.</p>
-                  <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-sm leading-6 text-zinc-200">
-                    {parsed.reply}
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <button
-                      onClick={handleCopyReply}
-                      className="rounded-2xl border border-zinc-700 px-3 py-2 text-sm text-zinc-100 transition hover:bg-zinc-800"
-                    >
-                      {copied ? "Copied" : "Copy reply"}
-                    </button>
-                    <button
-                      onClick={() => setRawResult(DEMO_RESPONSE.replace("higher risk of future issues", "higher risk of regressions or patchwork fixes"))}
-                      className="rounded-2xl border border-zinc-700 px-3 py-2 text-sm text-zinc-100 transition hover:bg-zinc-800"
-                    >
-                      Regenerate tone
-                    </button>
-                  </div>
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={handleCopyReply}
+                    className="rounded-2xl border border-zinc-700 px-4 py-2 text-sm text-zinc-100 transition hover:bg-zinc-800"
+                  >
+                    {copied ? "Copied!" : "Copy reply"}
+                  </button>
+                  <button
+                    onClick={handleRegenerate}
+                    className="rounded-2xl border border-zinc-700 px-4 py-2 text-sm text-zinc-100 transition hover:bg-zinc-800"
+                  >
+                    Regenerate
+                  </button>
                 </div>
               </div>
-            ) : null}
+            )}
 
             <div className="rounded-3xl border border-zinc-800 bg-zinc-900/80 p-5">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-zinc-300">Why this helps</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-zinc-300">How this works</h3>
               <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Most client requests sound small in words, but expand once you look at what they actually touch.
-                This forces a pause before you say yes.
+                Stop → Classify → Decide → Respond. No AI needed. Just a simple framework to help you make better scope decisions.
               </p>
             </div>
           </section>
