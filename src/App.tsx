@@ -61,7 +61,7 @@ export default function App() {
 
   function copyResult() {
     const text = isHappy
-      ? `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr and actually worked ${actual}h.\n\nReal rate: $${Math.round(realRate)}/hr — stayed on scope.\n\nCalculate yours: realrate.fyi`
+      ? `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr and actually worked ${actual}h.\n\nReal rate: $${Math.round(realRate)}/hr — stayed on scope.\n\nCalculate yours: whatdidyouearn.vercel.app`
       : `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr → charged $${Math.round(charged).toLocaleString()}\nI actually worked ${actual}h → real rate: $${Math.round(realRate)}/hr\n\nScope creep cost me $${Math.round(lost).toLocaleString()} — a ${drop}% pay cut I never agreed to.\n\nCalculate yours: realrate.fyi`
     navigator.clipboard.writeText(text).then(() => showToast('Copied. Send this to your past self.'))
   }
