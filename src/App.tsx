@@ -56,6 +56,9 @@ export default function App() {
   const yearly = lost * 8
   const isHappy = actual <= quoted
 
+  const rateRatio = rate > 0 ? realRate / rate : 1
+  const rateColor = rateRatio >= 1.05 ? 'rate-win' : rateRatio >= 0.90 ? 'rate-neutral' : 'rate-loss'
+
   function showToast(message: string) {
     setToast({ show: true, message })
     setTimeout(() => setToast({ show: false, message: '' }), 2800)
@@ -173,7 +176,7 @@ export default function App() {
 
             <div className="result-main">
               <div className="main-label">what you actually made</div>
-              <div className="real-rate-num">${Math.round(realRate).toLocaleString('en-US')}/hr</div>
+              <div className={`real-rate-num ${rateColor}`}>${Math.round(realRate).toLocaleString('en-US')}/hr</div>
               <div className={`real-rate-sub ${!isHappy ? 'real-rate-sub--loss' : ''}`}>
                 {isHappy
                   ? 'you stayed on scope — well done'

@@ -351,6 +351,18 @@ body {
   transition: color 0.4s;
 }
 
+.real-rate-num.rate-win {
+  color: var(--accent);
+}
+
+.real-rate-num.rate-neutral {
+  color: var(--white);
+}
+
+.real-rate-num.rate-loss {
+  color: var(--red);
+}
+
 .result-block.happy .real-rate-num {
   color: var(--gray-light);
 }
