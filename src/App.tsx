@@ -57,7 +57,7 @@ export default function App() {
   const isHappy = actual <= quoted
 
   const rateRatio = rate > 0 ? realRate / rate : 1
-  const rateColor = actual <= quoted ? 'rate-win' : rateRatio >= 0.90 ? 'rate-neutral' : 'rate-loss'
+  const rateColor = rateRatio >= 1.05 ? 'rate-win' : rateRatio >= 0.90 ? 'rate-neutral' : 'rate-loss'
 
   function showToast(message: string) {
     setToast({ show: true, message })
@@ -91,7 +91,11 @@ export default function App() {
 
         <div className="hero-example">
           <div className="hero-example-row">
-            <span className="ex-label">Quoted</span>
+            <span className="ex-label">Quoted rate</span>
+            <span className="ex-val neutral">$100/hr</span>
+          </div>
+          <div className="hero-example-row">
+            <span className="ex-label">Quoted hours</span>
             <span className="ex-val neutral">$2,000</span>
           </div>
           <div className="hero-example-row">
@@ -100,7 +104,7 @@ export default function App() {
           </div>
           <div className="hero-example-row">
             <span className="ex-label">Real rate</span>
-            <span className="ex-val accent">$47/hr</span>
+            <span className="ex-val loss">$47/hr <span className="ex-drop">↓ -53%</span></span>
           </div>
         </div>
 
