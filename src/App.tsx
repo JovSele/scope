@@ -57,7 +57,7 @@ export default function App() {
   const isHappy = actual <= quoted
 
   const rateRatio = rate > 0 ? realRate / rate : 1
-  const rateColor = rateRatio >= 1.05 ? 'rate-win' : rateRatio >= 0.90 ? 'rate-neutral' : 'rate-loss'
+  const rateColor = actual <= quoted ? 'rate-win' : rateRatio >= 0.90 ? 'rate-neutral' : 'rate-loss'
 
   function showToast(message: string) {
     setToast({ show: true, message })
