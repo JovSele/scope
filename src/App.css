@@ -11,7 +11,7 @@
   --white: #f5f2ed;
   --accent: #4ade80;
   --accent-dim: #16a34a;
-  --green: #4caf7d;
+  --red: #c0392b;
   --gray: #888;
   --gray-light: #bbb;
   --border: rgba(255,255,255,0.08);
@@ -393,7 +393,7 @@ body {
 .lost-num {
   font-family: var(--serif);
   font-size: 1.8rem;
-  color: var(--accent);
+  color: var(--red);
   transition: color 0.3s;
 }
 
@@ -404,7 +404,7 @@ body {
 .yearly-num {
   font-family: var(--serif);
   font-size: 1.8rem;
-  color: var(--gray-light);
+  color: var(--red);
 }
 
 .lost-sub {
