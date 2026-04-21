@@ -412,11 +412,11 @@ body {
 
 .insight-block .tag {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  color: var(--gray);
-  margin-bottom: 1rem;
-  opacity: 0.5;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  opacity: 1;
 }
 
 .insight-block h2 {
