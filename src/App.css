@@ -363,10 +363,6 @@ body {
   color: var(--red);
 }
 
-.result-block.happy .real-rate-num {
-  color: var(--gray-light);
-}
-
 .real-rate-sub {
   font-size: 14px;
   color: var(--gray);
@@ -423,6 +419,10 @@ body {
   font-family: var(--serif);
   font-size: 1.8rem;
   color: var(--red);
+}
+
+.result-block.happy .yearly-num {
+  color: var(--gray-light);
 }
 
 .lost-sub {
