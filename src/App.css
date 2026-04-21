@@ -9,7 +9,7 @@
 :root {
   --black: #0e0e0e;
   --white: #f5f2ed;
-  --accent: #4ade80;
+  --accent: #86efac;
   --accent-dim: #16a34a;
   --red: #c0392b;
   --gray: #888;
@@ -359,6 +359,12 @@ body {
   font-size: 14px;
   color: var(--gray);
   font-family: var(--mono);
+}
+
+.real-rate-sub--loss {
+  font-size: 16px;
+  color: var(--gray-light);
+  letter-spacing: 0.02em;
 }
 
 .punch-line {

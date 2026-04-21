@@ -167,17 +167,17 @@ export default function App() {
             <div className="result-top">
               <div className="result-cell full">
                 <div className="cell-label">you thought you made</div>
-                <div className="cell-val">${Math.round(rate)}/hr</div>
+                <div className="cell-val">${Math.round(rate).toLocaleString('en-US')}/hr</div>
               </div>
             </div>
 
             <div className="result-main">
-              <div className="main-label">you actually made</div>
-              <div className="real-rate-num">${Math.round(realRate)}/hr</div>
-              <div className="real-rate-sub">
+              <div className="main-label">what you actually made</div>
+              <div className="real-rate-num">${Math.round(realRate).toLocaleString('en-US')}/hr</div>
+              <div className={`real-rate-sub ${!isHappy ? 'real-rate-sub--loss' : ''}`}>
                 {isHappy
                   ? 'you stayed on scope — well done'
-                  : `a ${drop}% pay cut you never agreed to`}
+                  : `you lost ${drop}% of your rate`}
               </div>
             </div>
 
@@ -190,18 +190,18 @@ export default function App() {
 
             <div className="result-bottom">
               <div className="lost-cell">
-                <div className="cell-label">unpaid work</div>
+                <div className="cell-label">unpaid work you did for free</div>
                 <div className="lost-num">
-                  {isHappy ? '$0' : `$${Math.round(lost).toLocaleString()}`}
+                  {isHappy ? '$0' : `$${Math.round(lost).toLocaleString('en-US')}`}
                 </div>
                 <div className="lost-sub">
-                  {isHappy ? 'no scope creep here' : `${extraHrs} hrs you'll never get back`}
+                  {isHappy ? 'no scope creep here' : `${extraHrs} hours you worked for free`}
                 </div>
               </div>
               <div className="yearly-cell">
                 <div className="cell-label">if this keeps happening</div>
                 <div className="yearly-num">
-                  {isHappy ? '$0' : `$${Math.round(yearly).toLocaleString()}`}
+                  {isHappy ? '$0' : `$${Math.round(yearly).toLocaleString('en-US')}`}
                 </div>
                 <div className="lost-sub">it adds up fast</div>
               </div>
