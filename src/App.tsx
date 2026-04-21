@@ -47,6 +47,8 @@ export default function App() {
   const [quoted, setQuoted] = useState(20)
   const [actual, setActual] = useState(43)
   const [toast, setToast] = useState({ show: false, message: '' })
+  const [hasInteracted, setHasInteracted] = useState(false)
+  const [hasTrackedCompletion, setHasTrackedCompletion] = useState(false)
 
   const charged = rate * quoted
   const realRate = actual > 0 ? charged / actual : 0
@@ -59,16 +61,46 @@ export default function App() {
   const rateRatio = rate > 0 ? realRate / rate : 1
   const rateColor = rateRatio >= 1.05 ? 'rate-win' : rateRatio >= 0.90 ? 'rate-neutral' : 'rate-loss'
 
+  // Track calculation completion when user has interacted and result is computed
+  useEffect(() => {
+    if (hasInteracted && !hasTrackedCompletion && rate > 0 && quoted > 0 && actual > 0) {
+      setHasTrackedCompletion(true)
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'calculation_completed', {
+          event_category: 'success'
+        })
+      }
+    }
+  }, [hasInteracted, hasTrackedCompletion, rate, quoted, actual])
+
   function showToast(message: string) {
     setToast({ show: true, message })
     setTimeout(() => setToast({ show: false, message: '' }), 2800)
+  }
+
+  function handleInputChange() {
+    if (!hasInteracted) {
+      setHasInteracted(true)
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'calculator_started', {
+          event_category: 'engagement'
+        })
+      }
+    }
   }
 
   function copyResult() {
     const text = isHappy
       ? `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr and actually worked ${actual}h.\n\nReal rate: $${Math.round(realRate)}/hr — stayed on scope.\n\nCalculate yours: whatdidyouearn.vercel.app`
       : `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr → charged $${Math.round(charged).toLocaleString()}\nI actually worked ${actual}h → real rate: $${Math.round(realRate)}/hr\n\nScope creep cost me $${Math.round(lost).toLocaleString()} — a ${drop}% pay cut I never agreed to.\n\nCalculate yours: whatdidyouearn.vercel.app`
-    navigator.clipboard.writeText(text).then(() => showToast('Copied. Send this to your past self.'))
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Copied. Send this to your past self.')
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'result_shared_or_copied', {
+          event_category: 'engagement'
+        })
+      }
+    })
   }
 
   if (page === 'scripts') {
@@ -129,7 +161,10 @@ export default function App() {
                   value={rate}
                   min={1}
                   max={999}
-                  onChange={e => setRate(parseFloat(e.target.value) || 0)}
+                  onChange={e => {
+                    setRate(parseFloat(e.target.value) || 0)
+                    handleInputChange()
+                  }}
                 />
                 <span className="prefix suffix">/hr</span>
               </div>
@@ -145,7 +180,10 @@ export default function App() {
                     max={200}
                     step={1}
                     value={quoted}
-                    onChange={e => setQuoted(parseInt(e.target.value))}
+                    onChange={e => {
+                      setQuoted(parseInt(e.target.value))
+                      handleInputChange()
+                    }}
                   />
                   <span className="slider-val">{quoted}h</span>
                 </div>
@@ -162,7 +200,10 @@ export default function App() {
                     max={200}
                     step={1}
                     value={actual}
-                    onChange={e => setActual(parseInt(e.target.value))}
+                    onChange={e => {
+                      setActual(parseInt(e.target.value))
+                      handleInputChange()
+                    }}
                   />
                   <span className="slider-val">{actual}h</span>
                 </div>

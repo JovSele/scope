@@ -53,6 +53,11 @@ function CopyButton({ text }: { text: string }) {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'result_shared_or_copied', {
+          event_category: 'engagement'
+        })
+      }
     })
   }
 
