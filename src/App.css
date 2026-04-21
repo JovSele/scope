@@ -442,6 +442,25 @@ body {
   max-width: 480px;
 }
 
+.insight-closer {
+  margin-top: 1.5rem !important;
+  font-family: var(--serif);
+  font-size: 1.1rem !important;
+  font-style: italic;
+  color: var(--gray-light) !important;
+  line-height: 1.6;
+  max-width: 480px;
+}
+
+.scroll-bridge {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--gray);
+  margin-bottom: 3rem;
+  padding-left: 0;
+}
+
 .req {
   font-family: var(--mono);
   font-size: 13px;

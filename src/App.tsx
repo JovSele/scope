@@ -63,7 +63,7 @@ export default function App() {
     const text = isHappy
       ? `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr and actually worked ${actual}h.\n\nReal rate: $${Math.round(realRate)}/hr — stayed on scope.\n\nCalculate yours: realrate.fyi`
       : `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr → charged $${Math.round(charged).toLocaleString()}\nI actually worked ${actual}h → real rate: $${Math.round(realRate)}/hr\n\nScope creep cost me $${Math.round(lost).toLocaleString()} — a ${drop}% pay cut I never agreed to.\n\nCalculate yours: realrate.fyi`
-    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'))
+    navigator.clipboard.writeText(text).then(() => showToast('Copied. Send this to your past self.'))
   }
 
   return (
@@ -198,7 +198,7 @@ export default function App() {
 
         <InsightBlock tag="02">
           <h2>You didn't notice it happening.</h2>
-          <p>You lost it slowly. One extra section. One more revision. One "quick fix" that wasn't quick. None of them felt like a decision. All of them were.</p>
+          <p>You lost it slowly. One extra section. One more revision. One "quick fix" that wasn't quick.</p>
           <div className="requests-list">
             {[
               '"Can you just tweak the headline?"',
@@ -213,7 +213,10 @@ export default function App() {
               </div>
             ))}
           </div>
+          <p className="insight-closer">None of these felt like a decision.<br />But together, they were.</p>
         </InsightBlock>
+
+        <p className="scroll-bridge">And here's the part most people miss:</p>
 
         <InsightBlock tag="03">
           <h2>The problem isn't scope creep.</h2>
