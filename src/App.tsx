@@ -60,7 +60,9 @@ export default function App() {
   }
 
   function copyResult() {
-    const text = `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr → charged $${Math.round(charged).toLocaleString()}\nI actually worked ${actual}h → real rate: $${Math.round(realRate)}/hr\n\nScope creep cost me $${Math.round(lost).toLocaleString()} — a ${drop}% pay cut I never agreed to.\n\nCalculate yours: realrate.fyi`
+    const text = isHappy
+      ? `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr and actually worked ${actual}h.\n\nReal rate: $${Math.round(realRate)}/hr — stayed on scope.\n\nCalculate yours: realrate.fyi`
+      : `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr → charged $${Math.round(charged).toLocaleString()}\nI actually worked ${actual}h → real rate: $${Math.round(realRate)}/hr\n\nScope creep cost me $${Math.round(lost).toLocaleString()} — a ${drop}% pay cut I never agreed to.\n\nCalculate yours: realrate.fyi`
     navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'))
   }
 
@@ -73,7 +75,7 @@ export default function App() {
         <p className="hero-sub">
           You quoted $100/hr. You said yes to a few small requests. You never recalculated. This tool does it for you.
         </p>
-        <p className="scroll-hint">Run the numbers <span>↓</span></p>
+        <p className="scroll-hint">See how much you undercharged <span>↓</span></p>
       </section>
 
       <hr className="divider" />
@@ -81,8 +83,8 @@ export default function App() {
       {/* CALCULATOR */}
       <section className="calc-section">
         <div className="calc-inner">
-          <p className="section-label">01 — The calculator</p>
-          <h2 className="calc-title">Enter your last project</h2>
+          <p className="section-label">01</p>
+          <h2 className="calc-title">Run your last project</h2>
 
           <div className="inputs-grid">
             <div className="input-group">
@@ -137,11 +139,7 @@ export default function App() {
 
           <div className={`result-block ${isHappy ? 'happy' : ''}`}>
             <div className="result-top">
-              <div className="result-cell">
-                <div className="cell-label">you charged</div>
-                <div className="cell-val">${Math.round(charged).toLocaleString()}</div>
-              </div>
-              <div className="result-cell">
+              <div className="result-cell full">
                 <div className="cell-label">you thought you made</div>
                 <div className="cell-val">${Math.round(rate)}/hr</div>
               </div>
@@ -157,6 +155,13 @@ export default function App() {
               </div>
             </div>
 
+            {!isHappy && (
+              <div className="punch-line">
+                You didn't notice this happening.<br />
+                <em>That's the problem.</em>
+              </div>
+            )}
+
             <div className="result-bottom">
               <div className="lost-cell">
                 <div className="cell-label">unpaid work</div>
@@ -168,11 +173,11 @@ export default function App() {
                 </div>
               </div>
               <div className="yearly-cell">
-                <div className="cell-label">across 8 projects/year</div>
+                <div className="cell-label">if this keeps happening</div>
                 <div className="yearly-num">
                   {isHappy ? '$0' : `$${Math.round(yearly).toLocaleString()}`}
                 </div>
-                <div className="lost-sub">given away for free</div>
+                <div className="lost-sub">it adds up fast</div>
               </div>
             </div>
           </div>
@@ -191,8 +196,8 @@ export default function App() {
       {/* INSIGHTS */}
       <section className="insight-section">
 
-        <InsightBlock tag="02 — Why this happened">
-          <h2>You didn't lose money on one big request.</h2>
+        <InsightBlock tag="02">
+          <h2>You didn't notice it happening.</h2>
           <p>You lost it slowly. One extra section. One more revision. One "quick fix" that wasn't quick. None of them felt like a decision. All of them were.</p>
           <div className="requests-list">
             {[
@@ -210,14 +215,14 @@ export default function App() {
           </div>
         </InsightBlock>
 
-        <InsightBlock tag="03 — The real problem">
-          <h2>You didn't lose money because of scope creep.<br />You lost it because you said yes too fast.</h2>
-          <p>The request wasn't the problem. Your instinct to reply immediately was. Every "sure, no problem" without thinking costs you money you never see leaving.</p>
+        <InsightBlock tag="03">
+          <h2>The problem isn't scope creep.</h2>
+          <p>It's that you said yes before you knew what you were agreeing to. The request wasn't the problem. Your instinct to reply immediately was. Every "sure, no problem" without thinking costs you money you never see leaving.</p>
         </InsightBlock>
 
-        <InsightBlock tag="04 — What to do next time">
-          <h2>Three steps. Before you reply to anything.</h2>
-          <p>Not a contract. Not a tool. A habit. The only system that actually works is the one you'll use in the moment — when the Slack message arrives and you have 30 seconds to decide.</p>
+        <InsightBlock tag="04">
+          <h2>Before you say yes again.</h2>
+          <p>Not a contract. Not a tool. A habit. The only system that works is the one you'll actually use — when the Slack message arrives and you have 30 seconds to decide.</p>
           <div className="steps">
             {[
               {
@@ -254,11 +259,11 @@ export default function App() {
       {/* CTA */}
       <section className="cta-section">
         <div className="cta-inner">
-          <h2>Want the exact scripts?</h2>
-          <p>Copy-paste replies for every scope creep scenario. What to say when a client asks for "just one more thing." Free to grab.</p>
+          <h2>Want the exact replies?</h2>
+          <p>Copy what to say when a client asks for "just one more thing."</p>
           <div className="cta-options">
             <button className="btn-primary" onClick={() => showToast('Scripts coming soon — check back shortly')}>
-              Get the scripts →
+              Copy the exact replies to use →
             </button>
             <button className="btn-ghost" onClick={copyResult}>
               Share your result
