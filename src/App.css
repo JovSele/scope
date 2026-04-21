@@ -813,3 +813,29 @@ footer {
   color: var(--white);
   font-style: italic;
 }
+
+.scripts-reframe {
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  font-weight: 400;
+  color: var(--gray-light);
+  line-height: 1.4;
+  margin-bottom: 1rem;
+  padding-bottom: 2rem;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.scripts-reframe em {
+  color: var(--white);
+  font-style: italic;
+}
+
+.scripts-hint {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  padding-top: 1.5rem;
+}
