@@ -77,11 +77,31 @@ export default function App() {
       {/* HERO */}
       <section className="hero">
         <p className="eyebrow">Reality check for freelancers</p>
-        <h1>What did that project<br /><em>actually</em> pay you?</h1>
+        <h1>
+          You thought you charged $100/hr.<br />
+          <em>You probably made $47/hr.</em>
+        </h1>
         <p className="hero-sub">
-          You quoted $100/hr. You said yes to a few small requests. You never recalculated. This tool does it for you.
+          Most freelancers lose 30–50% of their rate without noticing.
+          On a $3,000 project, that's $900–$1,500 gone.
         </p>
-        <p className="scroll-hint">See how much you undercharged <span>↓</span></p>
+
+        <div className="hero-example">
+          <div className="hero-example-row">
+            <span className="ex-label">Quoted</span>
+            <span className="ex-val neutral">$2,000</span>
+          </div>
+          <div className="hero-example-row">
+            <span className="ex-label">Actually worked</span>
+            <span className="ex-val neutral">43h</span>
+          </div>
+          <div className="hero-example-row">
+            <span className="ex-label">Real rate</span>
+            <span className="ex-val accent">$47/hr</span>
+          </div>
+        </div>
+
+        <p className="scroll-hint">See your real rate <span>↓</span></p>
       </section>
 
       <hr className="divider" />
