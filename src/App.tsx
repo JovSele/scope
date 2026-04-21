@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import './App.css'
+import Scripts from './Scripts'
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null)
@@ -41,6 +42,7 @@ function InsightBlock({ tag, children }: { tag: string; children: React.ReactNod
 }
 
 export default function App() {
+  const [page, setPage] = useState<'home' | 'scripts'>('home')
   const [rate, setRate] = useState(100)
   const [quoted, setQuoted] = useState(20)
   const [actual, setActual] = useState(43)
@@ -61,9 +63,13 @@ export default function App() {
 
   function copyResult() {
     const text = isHappy
-      ? `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr and actually worked ${actual}h.\n\nReal rate: $${Math.round(realRate)}/hr — stayed on scope.\n\nCalculate yours: whatdidyouearn.vercel.app`
-      : `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr → charged $${Math.round(charged).toLocaleString()}\nI actually worked ${actual}h → real rate: $${Math.round(realRate)}/hr\n\nScope creep cost me $${Math.round(lost).toLocaleString()} — a ${drop}% pay cut I never agreed to.\n\nCalculate yours: whatdidyouearn.vercel.app`
+      ? `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr and actually worked ${actual}h.\n\nReal rate: $${Math.round(realRate)}/hr — stayed on scope.\n\nCalculate yours: realrate.fyi`
+      : `I just ran the numbers on a recent project.\n\nI quoted ${quoted}h at $${Math.round(rate)}/hr → charged $${Math.round(charged).toLocaleString()}\nI actually worked ${actual}h → real rate: $${Math.round(realRate)}/hr\n\nScope creep cost me $${Math.round(lost).toLocaleString()} — a ${drop}% pay cut I never agreed to.\n\nCalculate yours: realrate.fyi`
     navigator.clipboard.writeText(text).then(() => showToast('Copied. Send this to your past self.'))
+  }
+
+  if (page === 'scripts') {
+    return <Scripts onBack={() => setPage('home')} />
   }
 
   return (
@@ -265,7 +271,7 @@ export default function App() {
           <h2>Want the exact replies?</h2>
           <p>Copy what to say when a client asks for "just one more thing."</p>
           <div className="cta-options">
-            <button className="btn-primary" onClick={() => showToast('Scripts coming soon — check back shortly')}>
+            <button className="btn-primary" onClick={() => setPage('scripts')}>
               Copy the exact replies to use →
             </button>
             <button className="btn-ghost" onClick={copyResult}>
